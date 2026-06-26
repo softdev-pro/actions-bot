@@ -26,6 +26,18 @@ jobs:
         working-directory: private-repo/IPTVORG/Scripts
         run: python iptv_org.py
 
+      - name: Verify Output
+        run: |
+          python -c "
+          import json, sys
+          data = json.load(open('private-repo/IPTVORG/iptv_org_channels.json'))
+          total = data['metadata']['totalChannels']
+          print(f'Channels found: {total}')
+          if total == 0:
+              print('ERROR: 0 channels! Refusing to push.')
+              sys.exit(1)
+          "
+
       - name: Push to Private Repo
         working-directory: private-repo
         run: |
