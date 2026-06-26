@@ -22,6 +22,46 @@ jobs:
       - name: Install Dependencies
         run: pip install requests beautifulsoup4 urllib3
 
+      - name: Fetch BD Proxy
+        run: |
+          python -c "
+          import requests, os
+
+          try:
+              # Fetch Bangladesh HTTP proxies
+              r = requests.get(
+                  'https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=bd&protocol=http&timeout=5000&proxy_format=ipport&format=text',
+                  timeout=10
+              )
+              proxies = [p.strip() for p in r.text.strip().split('\n') if p.strip()]
+              print(f'Found {len(proxies)} BD proxies')
+
+              # Test each proxy
+              working = None
+              for p in proxies[:10]:
+                  try:
+                      test = requests.get(
+                          'https://owrcovcrpy.gpcdn.net/bpk-tv/1703/output/index.m3u8',
+                          proxies={'http': f'http://{p}', 'https': f'http://{p}'},
+                          timeout=6, verify=False
+                      )
+                      if test.status_code == 200:
+                          working = p
+                          print(f'Working proxy: {p}')
+                          break
+                  except:
+                      continue
+
+              if working:
+                  with open(os.environ['GITHUB_ENV'], 'a') as f:
+                      f.write(f'BD_PROXY=http://{working}\n')
+                  print(f'BD_PROXY set to http://{working}')
+              else:
+                  print('No working BD proxy found. Running without proxy.')
+          except Exception as e:
+              print(f'Proxy fetch failed: {e}. Running without proxy.')
+          "
+
       - name: Run IPTV-ORG Scraper
         working-directory: private-repo/IPTVORG/Scripts
         run: python iptv_org.py
