@@ -22,60 +22,25 @@ jobs:
       - name: Install Dependencies
         run: pip install requests beautifulsoup4 urllib3
 
-      - name: Fetch BD Proxy
-        run: |
-          python -c "
-          import requests, os
-
-          try:
-              # Fetch Bangladesh HTTP proxies
-              r = requests.get(
-                  'https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=bd&protocol=http&timeout=5000&proxy_format=ipport&format=text',
-                  timeout=10
-              )
-              proxies = [p.strip() for p in r.text.strip().split('\n') if p.strip()]
-              print(f'Found {len(proxies)} BD proxies')
-
-              # Test each proxy
-              working = None
-              for p in proxies[:10]:
-                  try:
-                      test = requests.get(
-                          'https://owrcovcrpy.gpcdn.net/bpk-tv/1703/output/index.m3u8',
-                          proxies={'http': f'http://{p}', 'https': f'http://{p}'},
-                          timeout=6, verify=False
-                      )
-                      if test.status_code == 200:
-                          working = p
-                          print(f'Working proxy: {p}')
-                          break
-                  except:
-                      continue
-
-              if working:
-                  with open(os.environ['GITHUB_ENV'], 'a') as f:
-                      f.write(f'BD_PROXY=http://{working}\n')
-                  print(f'BD_PROXY set to http://{working}')
-              else:
-                  print('No working BD proxy found. Running without proxy.')
-          except Exception as e:
-              print(f'Proxy fetch failed: {e}. Running without proxy.')
-          "
-
       - name: Run IPTV-ORG Scraper
         working-directory: private-repo/IPTVORG/Scripts
         run: python iptv_org.py
 
       - name: Verify Output
+        working-directory: private-repo
         run: |
           python -c "
-          import json, sys
-          data = json.load(open('private-repo/IPTVORG/iptv_org_channels.json'))
+          import json, sys, subprocess
+          data = json.load(open('IPTVORG/iptv_org_channels.json'))
           total = data['metadata']['totalChannels']
           print(f'Channels found: {total}')
           if total < 20:
-              print(f'ERROR: Only {total} channels found (minimum 20). Some CDN servers may be blocked. Refusing to push.')
-              sys.exit(1)
+              print(f'WARNING: Only {total} channels found (runner IP may be blocked by some CDNs).')
+              print('Restoring previous JSON from git to avoid overwriting good data...')
+              subprocess.run(['git', 'checkout', 'HEAD', '--', 'IPTVORG/iptv_org_channels.json'], check=True)
+              print('Previous JSON restored. Skipping push.')
+              sys.exit(0)
+          print(f'OK: {total} channels. Proceeding with push.')
           "
 
       - name: Push to Private Repo
