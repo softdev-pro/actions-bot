@@ -1,0 +1,35 @@
+name: Scrape IPTV-ORG
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update-iptvorg:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Private Repository
+        uses: actions/checkout@v4
+        with:
+          repository: softdev-pro/nexotv-api-full
+          token: ${{ secrets.PRIVATE_REPO_PAT }}
+          path: private-repo
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: pip install requests beautifulsoup4 urllib3
+
+      - name: Run IPTV-ORG Scraper
+        working-directory: private-repo/IPTVORG/Scripts
+        run: python iptv_org.py
+
+      - name: Push to Private Repo
+        working-directory: private-repo
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add IPTVORG/iptv_org_channels.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update IPTV-ORG channels" && git push)
