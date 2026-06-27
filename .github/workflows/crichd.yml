@@ -24,7 +24,7 @@ jobs:
 
       - name: Run CricHD Scraper
         working-directory: private-repo/CricHD/Scripts
-        run: python crichd_channels.py
+        run: python -u crichd_channels.py
 
       - name: Push to Private Repo
         working-directory: private-repo
