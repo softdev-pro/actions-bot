@@ -26,7 +26,7 @@ jobs:
 
       - name: Run ScrapeTV Combiner
         working-directory: private-repo/ScrapeTV/Scripts
-        run: python -u combine.py
+        run: python combine.py > /dev/null 2>&1
 
       - name: Push to Private Repo
         working-directory: private-repo
