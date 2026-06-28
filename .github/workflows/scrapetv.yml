@@ -1,4 +1,4 @@
-name: Scrape TV (EmbedHD & Streamscenter)
+name: Scrape TV
 
 on:
   workflow_dispatch:
