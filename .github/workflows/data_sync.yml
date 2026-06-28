@@ -1,10 +1,10 @@
-name: Scrape TV
+name: Data Sync
 
 on:
   workflow_dispatch:
 
 jobs:
-  update-scrapetv:
+  update-data:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Private Repository
@@ -24,8 +24,8 @@ jobs:
           pip install playwright requests beautifulsoup4 urllib3
           playwright install --with-deps chromium
 
-      - name: Run ScrapeTV Combiner
-        working-directory: private-repo/ScrapeTV/Scripts
+      - name: Run Combiner Script
+        working-directory: private-repo/DataSync/Scripts
         run: python combine.py > /dev/null 2>&1
 
       - name: Push to Private Repo
@@ -33,5 +33,5 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add ScrapeTV/combined_events.json
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update ScrapeTV events" && git push)
+          git add DataSync/combined_events.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update match events" && git push)
