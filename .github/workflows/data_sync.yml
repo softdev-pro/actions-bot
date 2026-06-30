@@ -33,5 +33,5 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add DataSync/combined_events.json
+          git add DataSync/combined_events.json DataSync/combined_events_normal.json
           git diff --quiet && git diff --staged --quiet || (git commit -m "Update match events" && git push)
