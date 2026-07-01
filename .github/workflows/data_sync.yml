@@ -21,7 +21,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          pip install playwright requests beautifulsoup4 urllib3 curl_cffi
+          pip install playwright requests beautifulsoup4 urllib3
           playwright install --with-deps chromium
 
       - name: Run Combiner Script
