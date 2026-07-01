@@ -34,6 +34,8 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git stash
           git pull --rebase origin master
+          git stash pop || true
           git add NexoSports/schedule_playlists.json NexoSports/schedule_playlists_normal.json
           git diff --quiet && git diff --staged --quiet || (git commit -m "Update nxsp schedule" && git push)
