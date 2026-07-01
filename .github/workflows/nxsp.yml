@@ -25,7 +25,7 @@ jobs:
           pip install playwright requests urllib3
           playwright install --with-deps chromium
 
-      - name: Run NexoSports Scraper
+      - name: Run NXSP
         working-directory: private-repo/NexoSports/Scripts
         run: python schedule_nexotv.py
 
